@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>潘帅 - 产品专家 | 交互式简历</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 
+    Chosen Palette: Premium Tech (White, Slate Gray, Deep Blue)
+    Application Structure Plan: Retaining the accordion structure. Header layout is tightened to fix spacing. Key metric cards now feature a hover-triggered popover with detailed action paths, styled for a premium, Apple/Tesla-like aesthetic.
+    Visualization & Content Choices: Report Info: Professional Resume. Goal: Showcase skills with a premium brand feel. Method: Interactive accordion, hover-enabled metric cards with popovers. Interaction: Click to expand, hover to reveal details. Justification: This enhances information density and user engagement while elevating the design quality. Library: Vanilla JS, Tailwind CSS.
+    CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #ffffff;
+        }
+        .experience-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0 1.5rem;
+        }
+        .experience-item.open .experience-content {
+            max-height: 2500px;
+            padding: 1.5rem 1.5rem;
+        }
+        .experience-item.open .arrow-icon {
+            transform: rotate(180deg);
+        }
+        .arrow-icon {
+            transition: transform 0.3s ease;
+        }
+        .evolution-step {
+            transition: all 0.3s ease;
+        }
+        .evolution-step.active {
+            background-color: #eef2ff; /* Indigo-100 */
+        }
+        .evolution-detail {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        }
+        .achievement-card {
+             transition: all 0.3s ease;
+        }
+        .achievement-card.clickable:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+        #detail-popover {
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <!-- Header Section -->
+        <header class="py-12 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900">潘帅</h1>
+            <p class="text-xl md:text-2xl text-blue-700 font-medium mt-3">产品专家</p>
+            <div class="mt-6 max-w-3xl mx-auto text-lg leading-relaxed text-slate-600">
+                <p>7年B端产品专家经验，专注于平台型产品的从0到1构建、数据驱动的商业化增长、以及复杂业务的数字化与智能化转型。致力于通过产品创新，为业务创造可衡量的商业价值。</p>
+            </div>
+            <div class="mt-8 flex justify-center items-center space-x-6 text-slate-500">
+                <a href="mailto:palones@163.com" class="flex items-center group hover:text-blue-700 transition-colors">
+                    <span class="text-xl">📧</span>
+                    <span class="ml-2 font-medium group-hover:underline">palones@163.com</span>
+                </a>
+                <span class="text-slate-300">|</span>
+                <div class="flex items-center">
+                    <span class="text-xl">📞</span>
+                    <span class="ml-2 font-medium">181-5814-1884</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content: Career Timeline -->
+        <section id="experience" class="pt-4">
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-10">职业生涯与项目经历</h2>
+            <div id="experience-container" class="space-y-4">
+                <!-- Experience items will be generated here -->
+            </div>
+        </section>
+
+    </div>
+    
+    <!-- Popover Structure -->
+    <div id="detail-popover" class="absolute z-50 w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200/80 p-6 opacity-0 transform -translate-y-2">
+        <h3 id="popover-title" class="text-lg font-bold text-slate-900 mb-3"></h3>
+        <div id="popover-content" class="text-sm text-slate-600 space-y-3"></div>
+    </div>
+
+
+    <script>
+        const experiences = [
+            {
+                id: 'servyou',
+                company: '税友集团',
+                period: '2020.05 - 至今',
+                title: '平台产品专家 (负责内部数字化业务引擎)',
+                summary: '主导内部核心运营平台（CRM+CSM）从0到1的规划、建设与持续迭代，为全国十余个大区、超5000名员工提供数字化作战系统，对一线团队的人效提升和业务增长负责。',
+                metrics: [
+                    { 
+                        value: '94%', 
+                        label: '高危客户续费率',
+                        details: {
+                            title: '成果：高危客户续费率达到94%',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                    <li><strong>数据产品设计 (洞察问题)：</strong>牵头构建“客户健康度模型”，通过综合分析近10个底层数据，实现对客户流失风险的预测，<strong>准确率达到了75%</strong>。</li>
+                                    <li><strong>流程产品化 (解决问题)：</strong>牵头“精准运营”项目，打造场景化工作流，系统基于模型自动筛选高风险客户，并向客户成功经理推送标准化的“价值传递SOP”任务。</li>
+                                    <li><strong>赋能与拿结果：</strong>这套“产品+运营”组合拳，将依赖精英的“手工作业”，升级为标准化的“自动化流程”，最终<strong>将高危流失客户的续费率提升至94%</strong>。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>B端产品的深化，在于将<strong>数据洞察</strong>和<strong>业务流程</strong>深度融合，设计出既能发现问题、又能提供标准化解决方案的智能化产品。</p>
+                            `
+                        }
+                    },
+                    { 
+                        value: '15%', 
+                        label: '团队整体人效提升',
+                        details: {
+                            title: '成果：团队整体人效提升15%',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                    <li><strong>识别核心痛点：</strong>在平台进入智能化阶段后，发现一线销售每天仍需花费大量时间手动记录与客户的沟通摘要，效率低下且信息易失真。</li>
+                                    <li><strong>引入AI能力：</strong>主导引入AI大模型能力，上线“AI通话分析”功能。该功能可自动分析通话录音，提取关键信息（如客户意向、待办事项），并生成结构化摘要。</li>
+                                    <li><strong>无缝集成：</strong>将AI生成的摘要一键同步至CRM系统的跟进记录中，打通了从沟通到记录的最后一公里，<strong>平均每人每天节省近40分钟</strong>，让他们能更专注于客户沟通本身。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>AI在B端的价值，是成为一线员工的“副驾驶”，通过自动化处理高频、重复性的工作，将人的精力解放出来，投入到更具创造性和价值的环节中去。</p>
+                            `
+                        }
+                    },
+                    { 
+                        value: '50%', 
+                        label: '新员工上手周期缩短',
+                        details: {
+                            title: '成果：新员工上手周期缩短50%',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                     <li><strong>诊断问题：</strong>在平台搭建初期，发现新员工培训依赖“师傅带徒弟”，成长周期长（平均3个月），且能力参差不齐。</li>
+                                     <li><strong>流程标准化 (SOP)：</strong>深入一线，与各区业务骨干一同将最优的销售打法，沉淀为标准化的SOP（标准作业程序）。</li>
+                                     <li><strong>系统固化：</strong>将SOP固化到系统中。当新销售入职，系统会像“导航”一样，指引他完成每一步关键动作，例如“首次接触客户应发送什么资料”、“高意向客户应如何跟进”等。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>B端产品的核心价值之一，是将组织内少数精英的“隐性知识”，通过产品化的方式，转化为多数人可用的“显性能力”，从而提升整个组织的下限和平均水平。</p>
+                            `
+                        }
+                    },
+                    { 
+                        value: '9%', 
+                        label: '高价值客户升版率',
+                         details: {
+                            title: '成果：高价值客户升版率提升9%',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                     <li><strong>识别机会：</strong>通过数据分析发现，大量高价值客户（续费稳定、使用深度高）并未购买我们更高阶的产品版本，存在巨大的增收潜力。</li>
+                                     <li><strong>价值体系建设：</strong>在“精准运营”项目中，我们为高阶产品版本的功能，都打上了能解决客户何种“痛点”的价值标签。</li>
+                                     <li><strong>智能推荐：</strong>系统会基于客户的行为数据，自动分析其潜在需求，并向客户成功经理推送“升版建议”。例如：“客户A频繁使用报表导出功能，建议向其推荐我们带有高级数据分析功能的‘旗舰版’。”</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>数据驱动增长不仅是“防守”（防止流失），更是“进攻”（创造增收）。通过深度理解客户行为，可以精准地识别并激发其潜在的付费意愿。</p>
+                            `
+                        }
+                    }
+                ],
+                evolution: [
+                    { 
+                        stage: '1.0',
+                        name: 'MVP与系统化', 
+                        icon: '🚀',
+                        details: '聚焦核心痛点，主导平台从0到1搭建并在全国推广。通过上线MVP版本并将最优销售打法沉淀为系统SOP，将<strong>新员工平均上手周期从3个月缩短至1.5个月</strong>，<strong>团队无效沟通时间减少约20%</strong>。'
+                    },
+                    { 
+                        stage: '2.0',
+                        name: '全面深化与扩展', 
+                        icon: '🏗️',
+                        details: '在MVP骨架之上丰富血肉，根据全国5大中心、数十个大区的差异化需求，迭代核心功能模块，确保系统能力完全满足业务诉求。并主导核心系统重构，为平台长期发展奠定坚实的、可扩展的架构基础。'
+                    },
+                    { 
+                        stage: '3.0',
+                        name: '数据驱动增长', 
+                        icon: '📊',
+                        details: '在平台能力完善后，深入业务，通过系统驱动业务增长。主导构建<strong>客户健康度模型</strong>，实现流失预警<strong>准确率达75%</strong>。并牵头“精准运营”项目，最终实现<strong>高危流失客户的续费率达到94%</strong>。'
+                    },
+                    { 
+                        stage: '4.0',
+                        name: '智能化赋能', 
+                        icon: '🤖',
+                        details: '引入AI大模型能力，上线“AI通话分析”等功能，进一步解放生产力，<strong>平均每人每天节省近40分钟</strong>，将<strong>团队整体人效再提升约15%</strong>。'
+                    }
+                ],
+                refactoring: [
+                     {
+                        icon: '🏢',
+                        title: '客户中心重构',
+                        details: '牵头重构集团客户中心，解决了老系统数据标准混乱、关系交叉等历史问题，为实现全业务数字化运营打下坚实的数据底座。'
+                    },
+                    {
+                        icon: '📈',
+                        title: '市场管理系统重构',
+                        details: '深入迭代市场管理系统，通过抽象多维度灵活配置能力，高效管理集团上亿量级的客户资源划分与流转，大幅降低人工成本。'
+                    }
+                ]
+            },
+            {
+                id: 'caocao',
+                company: '曹操出行',
+                period: '2019.09 - 2020.05',
+                title: '客户端产品经理 (海外出行)',
+                summary: '在公司全球化战略下，核心负责海外客户端产品（巴黎市场）的端到端开发，实现了司机端和乘客端产品从0到1的构建。',
+                 metrics: [
+                    { value: '90%', label: '相关客诉降低率' },
+                    { value: '1个月', label: '支付系统对接周期' }
+                ],
+                achievements: [
+                     {
+                        title: '主导产品从0到1上线并驱动关键项目落地',
+                        points: [
+                            '深入研究本地市场，主导产品本地化与MVP定义，并作为核心沟通桥梁，协调国内多中台与巴黎本地团队，确保项目按时交付。',
+                            '<strong>支付系统对接：</strong> 在跨国沟通不便的状态下，1个月内高效联动多方，完成与三方支付平台Adyen的核心模块对接，创造公司最快对接记录。',
+                            '<strong>风控规则建立：</strong> 主动组织业务、技术讨论，建立订单全链路風控规则，<strong>将订单相关的客诉降低了90%</strong>，保障了业务前期稳定运营。'
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'wacai',
+                company: '挖财网络',
+                period: '2017.05 - 2019.09',
+                title: '平台产品经理 (工具、增长、商业化)',
+                summary: '负责信用卡管家APP的工具侧产品优化，并在部门转向自负盈亏后，主导产品的商业化转型，对用户增长和商业化结果负责。',
+                metrics: [
+                    { 
+                        value: '10倍', 
+                        label: '平台月收入提升',
+                        details: {
+                            title: '成果：平台月收入提升10倍',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                    <li><strong>战略制定 (从0到1)：</strong>面对盈利压力，创新性地提出了“<strong>市场投放精准获客 + 金融产品组合变现</strong>”的核心战略。</li>
+                                    <li><strong>产品化落地 (从1到N)：</strong>主导设计核心自营贷款产品【小蛙卡贷】，并搭建开放平台高效接入超20家外部贷款机构，打造“贷款超市”。</li>
+                                    <li><strong>增长体系构建：</strong>牵头搭建用户增长系统，实现流量的精细化编排，并与广告平台打通数据回传链路，提升获客质量。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>产品的商业化成功，是一套<strong>“流量获取 → 流量承接 → 价值转化 → 数据反馈”</strong>的完整体系，考验的是以终为始的系统性思考能力。</p>
+                            `
+                        }
+                    },
+                    { 
+                        value: '45元', 
+                        label: '平台MAU价值',
+                        details: {
+                            title: '成果：平台MAU价值从1.9元提升至45元',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                    <li><strong>搭建增长系统 (精细化管理)：</strong>主导搭建用户增长系统，核心能力是“流量的精細化编排”，对不同渠道、画像的流量进行自动化分发。</li>
+                                    <li><strong>打通数据链路 (智能化投放)：</strong>推动订单数据与广告平台的实时回传，帮助广告算法模型更精准地学习、识别优质流量，提升市场竞价能力。</li>
+                                    <li><strong>沉淀运营策略 (提升转化)：</strong>通过A/B测试沉淀运营策略，例如将新用户流量优先匹配给高通过率产品，极大提升了新用户转化效率。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>用户增长的核心是搭建<strong>“获客 → 承接 → 转化 → 反馈”</strong>的全链路协同飞轮。</p>
+                            `
+                        }
+                    },
+                    { 
+                        value: '1000万', 
+                        label: '自营产品日放款额',
+                        details: {
+                            title: '成果：自营产品日放款额突破1000万',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                    <li><strong>数据驱动，漏斗优化：</strong>主导建立了进件全流程的实时数据监控漏斗，精准定位了从“点击申请”到“提交审核”等各个环节的核心流失点。</li>
+                                    <li><strong>极致打磨，提升转化：</strong>针对每一个流失点，我们进行了超过50次的迭代优化。例如，通过简化表单、优化身份验证流程、提供实时反馈等手段，我们将<strong>核心申请流程的转化率从最初的10%提升至90%以上</strong>。</li>
+                                    <li><strong>结果导向，规模增长：</strong>正是这种对细节的极致追求和对转化率的持续优化，最终驱动了日放款额从10万突破1000万的规模化增长。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>金融产品的增长，来自于对每一个转化节点的‘像素级’优化和对用户信任的精细化运营。</p>
+                            `
+                        }
+                    },
+                    { 
+                        value: '1.5', 
+                        label: '营销活动ROI',
+                         details: {
+                            title: '成果：营销活动ROI从0.5提升至1.5',
+                            content: `
+                                <h4 class='font-semibold text-slate-800 mb-2'>行动路径：</h4>
+                                <ol class='list-decimal list-inside space-y-2'>
+                                    <li><strong>搭建营销体系：</strong>主导搭建了工具侧的营销体系，包括会员中心和营销管理后台，为精细化运营提供了基础工具。</li>
+                                    <li><strong>精准用户分层：</strong>以信用卡还款用户和会员付费用户为抓手，通过用户行为数据进行分层，识别不同用户的潜在需求和激励点。</li>
+                                    <li><strong>定向活动刺激：</strong>通过营销后台，对不同层级的用户进行定向的、差异化的营销活动推送（如优惠券、积分奖励等），并通过A/B测试不断优化活动方案，提升LTV（用户生命周期总价值）。</li>
+                                </ol>
+                                <h4 class='font-semibold text-slate-800 mt-4 mb-2'>价值思考：</h4>
+                                <p>营销不是盲目投入，而是基于用户分层和数据反馈的精准滴灌，实现投入产出比（ROI）的最大化。</p>
+                            `
+                        }
+                    }
+                ],
+                achievements: [
+                    {
+                        title: '成功实现商业化闭环，营收能力十倍增长',
+                        points: [
+                            '面对盈利压力，创新性地探索出“市场投放获客 + 自营及API联营贷款变现”的新模式，<strong>在半年内成功带领团队实现盈利，将平台月收入从200万提升至2000万，ROI大于100%</strong>。',
+                            '主导自营贷款产品【小蛙卡贷】的设计与超过50次的迭代优化，<strong>将UV价值从2元提升至30元，日放款额从10万突破1000万</strong>。'
+                        ]
+                    },
+                    {
+                        title: '构建用户增长与精细化运营体系',
+                        points: [
+                            '搭建用户增长系统，通过标签、规则、排序等方式实现多维度流量管理，配合市场投放，<strong>将平台MAU价值从1.9元提升至45元</strong>。',
+                            '搭建工具侧营销体系（会员中心、营销后台），通过定向营销活动，<strong>将活动ROI从0.5提升至1.5，会员次日留存达40%</strong>。'
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('experience-container');
+            const popover = document.getElementById('detail-popover');
+            const popoverTitle = document.getElementById('popover-title');
+            const popoverContent = document.getElementById('popover-content');
+            let popoverTimeout;
+
+            experiences.forEach((exp, index) => {
+                const item = document.createElement('div');
+                item.className = 'experience-item bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-shadow duration-300';
+                
+                const metricsHtml = exp.metrics.map((metric, metricIndex) => {
+                    const hasDetails = !!metric.details;
+                    const clickableClass = hasDetails ? 'clickable' : '';
+                    const dataAttr = hasDetails ? `data-exp-id="${exp.id}" data-metric-index="${metricIndex}"` : '';
+                    
+                    return `
+                    <div class="achievement-card bg-slate-100 p-4 rounded-xl text-center transition-all duration-300 ${clickableClass}" ${dataAttr}>
+                        <p class="text-3xl font-bold text-blue-700 pointer-events-none">${metric.value}</p>
+                        <p class="text-slate-500 text-sm mt-1 pointer-events-none">${metric.label}</p>
+                    </div>
+                    `;
+                }).join('');
+
+                let achievementsHtml = '';
+                if (exp.evolution) {
+                    const evolutionStepsHtml = exp.evolution.map((step, idx) => `
+                        <div class="evolution-step flex-1 p-3 rounded-lg cursor-pointer text-center ${idx === 0 ? 'active' : ''}" data-index="${idx}">
+                            <div class="text-3xl">${step.icon}</div>
+                            <div class="font-semibold mt-2 text-slate-700 text-sm md:text-base">${step.name}</div>
+                        </div>
+                    `).join('');
+                    
+                    achievementsHtml += `
+                        <div class="mb-8">
+                            <h4 class="text-lg font-semibold text-slate-800 mb-4">主导平台四阶段演进</h4>
+                            <div class="evolution-diagram flex justify-between items-center bg-slate-100 rounded-xl p-1 gap-1">
+                                ${evolutionStepsHtml}
+                            </div>
+                            <div id="evolution-details-${exp.id}" class="mt-4 p-4 bg-blue-50 text-blue-900 rounded-xl evolution-detail">
+                                ${exp.evolution[0].details}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (exp.refactoring) {
+                    const refactoringHtml = exp.refactoring.map(item => `
+                        <div class="bg-slate-100 p-4 rounded-xl flex items-start">
+                            <span class="text-3xl mr-4 mt-1">${item.icon}</span>
+                            <div>
+                                <h5 class="font-semibold text-slate-800">${item.title}</h5>
+                                <p class="text-slate-500 text-sm mt-1 leading-relaxed">${item.details}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                    achievementsHtml += `
+                        <div class="mb-8">
+                            <h4 class="text-lg font-semibold text-slate-800 mb-4">主导核心系统重构</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${refactoringHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (exp.achievements) {
+                    exp.achievements.forEach(ach => {
+                        const pointsHtml = ach.points.map(p => `<li class="mb-2 pl-2">${p}</li>`).join('');
+                        achievementsHtml += `
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold text-slate-800 mb-3">${ach.title}</h4>
+                                <ul class="list-disc list-inside text-slate-600 space-y-2">${pointsHtml}</ul>
+                            </div>
+                        `;
+                    });
+                }
+
+
+                item.innerHTML = `
+                    <div class="experience-header cursor-pointer p-6 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">${exp.company}</h3>
+                            <p class="text-blue-700 font-semibold mt-1">${exp.title}</p>
+                            <p class="text-sm text-slate-500 mt-2">${exp.period}</p>
+                        </div>
+                        <div class="arrow-icon text-slate-400">
+                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="experience-content">
+                        <p class="leading-relaxed">${exp.summary}</p>
+                        <div class="mt-8">
+                            <h4 class="text-lg font-semibold text-slate-800 mb-4">核心成果</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                ${metricsHtml}
+                            </div>
+                        </div>
+                        <hr class="my-8 border-slate-200/80">
+                        <div>${achievementsHtml}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+
+                if (index === 0) {
+                    item.classList.add('open');
+                }
+            });
+
+            container.addEventListener('click', (e) => {
+                const header = e.target.closest('.experience-header');
+                if (header) {
+                    const item = header.parentElement;
+                    const wasOpen = item.classList.contains('open');
+                    
+                    container.querySelectorAll('.experience-item').forEach(i => i.classList.remove('open'));
+                    
+                    if (!wasOpen) {
+                        item.classList.add('open');
+                    }
+                    return;
+                }
+
+                const evolutionStep = e.target.closest('.evolution-step');
+                if (evolutionStep) {
+                    const expItem = evolutionStep.closest('.experience-item');
+                    const expId = experiences.find(ex => ex.company === expItem.querySelector('h3').textContent).id;
+                    const expData = experiences.find(ex => ex.id === expId);
+                    const index = parseInt(evolutionStep.dataset.index, 10);
+                    
+                    const detailContainer = expItem.querySelector(`#evolution-details-${expId}`);
+                    
+                    detailContainer.style.opacity = 0;
+                    setTimeout(() => {
+                        detailContainer.innerHTML = expData.evolution[index].details;
+                        detailContainer.style.opacity = 1;
+                    }, 200);
+
+                    expItem.querySelectorAll('.evolution-step').forEach(step => step.classList.remove('active'));
+                    evolutionStep.classList.add('active');
+                }
+            });
+
+            // Popover logic
+            const showPopover = (targetCard) => {
+                clearTimeout(popoverTimeout);
+                const expId = targetCard.dataset.expId;
+                const metricIndex = parseInt(targetCard.dataset.metricIndex, 10);
+                const expData = experiences.find(ex => ex.id === expId);
+                const metricData = expData.metrics[metricIndex];
+
+                if (metricData && metricData.details) {
+                    popoverTitle.innerHTML = metricData.details.title;
+                    popoverContent.innerHTML = metricData.details.content;
+
+                    const cardRect = targetCard.getBoundingClientRect();
+                    popover.style.display = 'block';
+                    
+                    const popoverRect = popover.getBoundingClientRect();
+                    
+                    let top = cardRect.bottom + window.scrollY + 8;
+                    let left = cardRect.left + window.scrollX + (cardRect.width / 2) - (popoverRect.width / 2);
+
+                    if (left < 16) left = 16;
+                    if (left + popoverRect.width > document.documentElement.clientWidth - 16) {
+                        left = document.documentElement.clientWidth - popoverRect.width - 16;
+                    }
+                     if (top + popoverRect.height > document.documentElement.scrollHeight) {
+                        top = cardRect.top + window.scrollY - popoverRect.height - 8;
+                    }
+
+
+                    popover.style.left = `${left}px`;
+                    popover.style.top = `${top}px`;
+                    
+                    popover.style.opacity = 1;
+                    popover.style.transform = 'translateY(0)';
+                }
+            };
+
+            const hidePopover = () => {
+                popoverTimeout = setTimeout(() => {
+                    popover.style.opacity = 0;
+                    popover.style.transform = 'translateY(-10px)';
+                }, 200);
+            };
+
+            container.addEventListener('mouseover', (e) => {
+                const metricCard = e.target.closest('.achievement-card.clickable');
+                if (metricCard) {
+                    showPopover(metricCard);
+                }
+            });
+
+            container.addEventListener('mouseout', (e) => {
+                const metricCard = e.target.closest('.achievement-card.clickable');
+                if (metricCard) {
+                    hidePopover();
+                }
+            });
+            
+            popover.addEventListener('mouseover', () => clearTimeout(popoverTimeout));
+            popover.addEventListener('mouseout', hidePopover);
+
+        });
+    </script>
+</body>
+</html>
