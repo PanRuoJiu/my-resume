@@ -40,7 +40,12 @@
             transition: all 0.3s ease;
         }
         .evolution-step.active {
-            background-color: #eef2ff; /* Indigo-100 */
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+        }
+        .evolution-step.active .font-semibold {
+             color: #1d4ed8; /* blue-700 */
         }
         .evolution-detail {
             transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
@@ -64,7 +69,7 @@
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
 
         <!-- Header Section -->
-        <header class="py-12 text-center">
+        <header class="py-10 text-center">
             <h1 class="text-4xl md:text-5xl font-bold text-slate-900">潘帅</h1>
             <p class="text-xl md:text-2xl text-blue-700 font-medium mt-3">产品专家</p>
             <div class="mt-6 max-w-3xl mx-auto text-lg leading-relaxed text-slate-600">
@@ -350,9 +355,10 @@
                     const dataAttr = hasDetails ? `data-exp-id="${exp.id}" data-metric-index="${metricIndex}"` : '';
                     
                     return `
-                    <div class="achievement-card bg-slate-100 p-4 rounded-xl text-center transition-all duration-300 ${clickableClass}" ${dataAttr}>
+                    <div class="achievement-card relative bg-slate-100 p-4 rounded-xl text-center transition-all duration-300 group ${clickableClass}" ${dataAttr}>
                         <p class="text-3xl font-bold text-blue-700 pointer-events-none">${metric.value}</p>
                         <p class="text-slate-500 text-sm mt-1 pointer-events-none">${metric.label}</p>
+                        ${hasDetails ? '<div class="absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-lg">↗</div>' : ''}
                     </div>
                     `;
                 }).join('');
